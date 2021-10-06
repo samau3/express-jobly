@@ -47,6 +47,12 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  */
 
 router.get("/", async function (req, res, next) {
+  // get query parameters (req.params)
+  // pass that into the findAll that will be updated
+  // throw an error for wrong parameters? ignore them?
+
+  // write tests first before trying to implement these ideas
+
   const companies = await Company.findAll();
   return res.json({ companies });
 });
