@@ -53,7 +53,7 @@ router.get("/", async function (req, res, next) {
 
   // write tests first before trying to implement these ideas
 
-  const companies = await Company.findAll();
+  const companies = await Company.findAll(req.query);
   return res.json({ companies });
 });
 
