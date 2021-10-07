@@ -60,11 +60,6 @@ class Company {
    * */
 
   static async findAll(searchFilters = {}) {
-    // need to pass in the query parameters
-    // need to selective implement where clauses based on parameters
-    // using a helper function? separate query thing?
-    // throw an error if min/max parameters are out of bounds
-    // write tests first before trying to implement these ideas
 
     const { name, minEmployees, maxEmployees } = searchFilters;
     if (minEmployees > maxEmployees) throw new BadRequestError("Min Employees must be less than Max Employees");
@@ -99,18 +94,23 @@ class Company {
 
   }
 
-  // WHERE Clause builder
-  // input -> query object
-  // if a filter key is there, then add appropriate WHERE clause
-  // additional ones will have AND between them
-
-  /** Takes in an object and returns a string for SQL*/
+  /** Takes in an object with at least one filter condition
+   *  returns an object with key value pair of SQL where clause and filter object's values
+   * 
+   * { minEmployees: 2, maxEmployees: 20, name: "Com"} -->
+   * 
+   * Returns {
+   *    SQL: "num_employees >= $1 AND num_employees <= $2 AND name ILIKE $3",
+   *    parameters: [2, 20, "_Com%"]
+   * }
+   * 
+  */
   static whereClauseBuilder(filters) {
     let whereClauses = [];
     let counter = 0;
     let values = [];
     if (filters.minEmployees !== undefined) {
-      whereClauses.push(`num_employees >= $${++counter}`); // $1
+      whereClauses.push(`num_employees >= $${++counter}`);
       values.push(filters.minEmployees);
     }
     if (filters.maxEmployees !== undefined) {
@@ -119,7 +119,7 @@ class Company {
     }
     if (filters.name !== undefined) {
       whereClauses.push(`name ILIKE $${++counter}`);
-      values.push(`_${filters.name}%`);
+      values.push(`_${filters.name}%`); // added the "_" and "%" to enable SQL contains query
     }
     // console.log("values in builder", values)
 
