@@ -53,29 +53,27 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
 // TODO:  Optional:  Could use a validator to validate correct types are passed in and that no extra parameters.  Let them know that 
 //        those parameters aren't allowed.  User might think they are getting the information they expect if they put in something like location.
 router.get("/", async function (req, res, next) {
-  if (req.query.minEmployees) {
-    req.query.minEmployees = parseInt(req.query.minEmployees);
+  let filters = req.query
+  if (filters.minEmployees) {
     if (isNaN(req.query.minEmployees)) {
       throw new BadRequestError("minEmployees must be a number.");
     }
+    filters.minEmployees = parseInt(req.query.minEmployees);
   }
   if (req.query.maxEmployees) {
-    req.query.maxEmployees = parseInt(req.query.maxEmployees);
     if (isNaN(req.query.maxEmployees)) {
       throw new BadRequestError("maxEmployees must be a number.");
     }
+    filters.maxEmployees = parseInt(req.query.maxEmployees);
   }
-  console.log("company route minEmployees: ", req.query.minEmployees);
-  const validator = jsonschema.validate(req.query, companySearchFiltersSchema);
+
+  const validator = jsonschema.validate(filters, companySearchFiltersSchema);
   if (!validator.valid) {
     const errs = validator.errors.map(e => e.stack);
     throw new BadRequestError(errs);
   }
 
-  // let { name, minEmployees, maxEmployees } = req.query;
-  // if (minEmployees) minEmployees = parseInt(minEmployees);
-  // if (maxEmployees) maxEmployees = parseInt(maxEmployees)
-  const companies = await Company.findAll(req.query);
+  const companies = await Company.findAll(filters);
   return res.json({ companies });
 });
 
