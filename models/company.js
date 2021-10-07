@@ -61,7 +61,10 @@ class Company {
 
   static async findAll(searchFilters = {}) {
 
-    const { name, minEmployees, maxEmployees } = searchFilters;
+    let { name, minEmployees, maxEmployees } = searchFilters;
+    if (minEmployees) minEmployees = parseInt(minEmployees);
+    if (maxEmployees) maxEmployees = parseInt(maxEmployees);
+
     if (minEmployees > maxEmployees) throw new BadRequestError("Min Employees must be less than Max Employees");
 
     // if searchFilter is empty, return all companies unfiltered

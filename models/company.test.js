@@ -127,7 +127,7 @@ describe("findAll", function () {
         handle: "c3",
         name: "C3",
         description: "Desc3",
-        numEmployees: 3,
+        numEmployees: 15,
         logoUrl: "http://c3.img",
       },
     ]);
@@ -149,7 +149,7 @@ describe("findAll", function () {
         handle: "c3",
         name: "C3",
         description: "Desc3",
-        numEmployees: 3,
+        numEmployees: 15,
         logoUrl: "http://c3.img",
       }
     ]);
@@ -204,13 +204,6 @@ describe("findAll", function () {
         numEmployees: 2,
         logoUrl: "http://c2.img",
       },
-      {
-        handle: "c3",
-        name: "C3",
-        description: "Desc3",
-        numEmployees: 3,
-        logoUrl: "http://c3.img",
-      }
     ]);
   });
 
@@ -222,7 +215,7 @@ describe("findAll", function () {
         handle: "c3",
         name: "C3",
         description: "Desc3",
-        numEmployees: 3,
+        numEmployees: 15,
         logoUrl: "http://c3.img",
       }
     ]);
@@ -230,7 +223,7 @@ describe("findAll", function () {
 
   test("works: filter min and max", async function () {
 
-    let companies = await Company.findAll({ minEmployees: 2, maxEmployees: 3 });
+    let companies = await Company.findAll({ minEmployees: 2, maxEmployees: 20 });
     expect(companies).toEqual([
       {
         handle: "c2",
@@ -243,7 +236,7 @@ describe("findAll", function () {
         handle: "c3",
         name: "C3",
         description: "Desc3",
-        numEmployees: 3,
+        numEmployees: 15,
         logoUrl: "http://c3.img",
       }
     ]);
@@ -257,13 +250,13 @@ describe("findAll", function () {
 
   test("works: filter min, max, name", async function () {
 
-    let companies = await Company.findAll({ minEmployees: 2, maxEmployees: 3, name: 3 });
+    let companies = await Company.findAll({ minEmployees: 2, maxEmployees: 15, name: 3 });
     expect(companies).toEqual([
       {
         handle: "c3",
         name: "C3",
         description: "Desc3",
-        numEmployees: 3,
+        numEmployees: 15,
         logoUrl: "http://c3.img",
       }
     ]);
@@ -273,7 +266,7 @@ describe("findAll", function () {
   // doesn't work if filtering for min greater than max
   test("doesn't work: min greater than max", async function () {
     try {
-      let companies = await Company.findAll({ minEmployees: 3, maxEmployees: 2 });
+      let companies = await Company.findAll({ minEmployees: 11, maxEmployees: 2 });
     } catch (err) {
       expect(err.status).toEqual(400);
       expect(err.message).toEqual("Min Employees must be less than Max Employees"); // change to be accurate
