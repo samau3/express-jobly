@@ -49,28 +49,84 @@ class Company {
     return company;
   }
 
-  /** Find all companies.
+  /** Find all companies that match filter conditions, if any.
    *
+   * Takes in filter object and returns and array of company objects
+   * 
+   * Can contain none or any of the filters name, minEmployees, or maxEmployees
+   * {name: string, minEmployees: number, maxEmployees: number} ->
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
+   * 
    * */
 
-  static async findAll() {
+  static async findAll(searchFilters = {}) {
     // need to pass in the query parameters
     // need to selective implement where clauses based on parameters
     // using a helper function? separate query thing?
     // throw an error if min/max parameters are out of bounds
     // write tests first before trying to implement these ideas
 
+    const { name, minEmployees, maxEmployees } = searchFilters;
+    if (minEmployees > maxEmployees) throw new BadRequestError("Min Employees must be less than Max Employees");
 
-    const companiesRes = await db.query(
-      `SELECT handle,
+    // if searchFilter is empty, return all companies unfiltered
+    if (Object.keys(searchFilters).length === 0) {
+      const companiesRes = await db.query(
+        `SELECT handle,
                 name,
                 description,
                 num_employees AS "numEmployees",
                 logo_url AS "logoUrl"
            FROM companies
            ORDER BY name`);
-    return companiesRes.rows;
+      return companiesRes.rows;
+    }
+    // otherwise, apply the filters via the whereClauseBuilder
+    else {
+      const { SQL, parameters } = this.whereClauseBuilder({ name, minEmployees, maxEmployees })
+
+      const companiesRes = await db.query(
+        `SELECT handle,
+                name,
+                description,
+                num_employees AS "numEmployees",
+                logo_url AS "logoUrl"
+           FROM companies
+           WHERE ${SQL}
+           ORDER BY name`, parameters);
+      return companiesRes.rows;
+    }
+
+  }
+
+  // WHERE Clause builder
+  // input -> query object
+  // if a filter key is there, then add appropriate WHERE clause
+  // additional ones will have AND between them
+
+  /** Takes in an object and returns a string for SQL*/
+  static whereClauseBuilder(filters) {
+    let whereClauses = [];
+    let counter = 0;
+    let values = [];
+    if (filters.minEmployees !== undefined) {
+      whereClauses.push(`num_employees >= $${++counter}`); // $1
+      values.push(filters.minEmployees);
+    }
+    if (filters.maxEmployees !== undefined) {
+      whereClauses.push(`num_employees <= $${++counter}`);
+      values.push(filters.maxEmployees);
+    }
+    if (filters.name !== undefined) {
+      whereClauses.push(`name ILIKE $${++counter}`);
+      values.push(`_${filters.name}%`);
+    }
+    // console.log("values in builder", values)
+
+    return {
+      SQL: whereClauses.join(" AND "),
+      parameters: values
+    }
   }
 
   /** Given a company handle, return data about company.
