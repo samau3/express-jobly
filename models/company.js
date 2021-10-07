@@ -62,41 +62,21 @@ class Company {
   // Loose the second query by adding string interpolation for where clause that may be an empty string.
 
   static async findAll(searchFilters = {}) {
-
     let { name, minEmployees, maxEmployees } = searchFilters;
-    if (minEmployees) minEmployees = parseInt(minEmployees);
-    if (maxEmployees) maxEmployees = parseInt(maxEmployees);
-
+    
     if (minEmployees > maxEmployees) throw new BadRequestError("Min Employees must be less than Max Employees");
+    const { SQL, parameters } = this._whereClauseBuilder({ name, minEmployees, maxEmployees });
 
-    // if searchFilter is empty, return all companies unfiltered
-    if (Object.keys(searchFilters).length === 0) {
-      const companiesRes = await db.query(
-        `SELECT handle,
-                name,
-                description,
-                num_employees AS "numEmployees",
-                logo_url AS "logoUrl"
-           FROM companies
-           ORDER BY name`);
-      return companiesRes.rows;
-    }
-    // otherwise, apply the filters via the whereClauseBuilder
-    else {
-      const { SQL, parameters } = this.whereClauseBuilder({ name, minEmployees, maxEmployees })
-
-      const companiesRes = await db.query(
-        `SELECT handle,
-                name,
-                description,
-                num_employees AS "numEmployees",
-                logo_url AS "logoUrl"
-           FROM companies
-           WHERE ${SQL}
-           ORDER BY name`, parameters);
-      return companiesRes.rows;
-    }
-
+    const companiesRes = await db.query(
+      `SELECT handle,
+              name,
+              description,
+              num_employees AS "numEmployees",
+              logo_url AS "logoUrl"
+          FROM companies
+          ${SQL} 
+          ORDER BY name`, parameters);
+    return companiesRes.rows;
   }
 
   /** Takes in an object with at least one filter condition
@@ -105,36 +85,36 @@ class Company {
    * { minEmployees: 2, maxEmployees: 20, name: "Com"} -->
    * 
    * Returns {
-   *    SQL: "num_employees >= $1 AND num_employees <= $2 AND name ILIKE $3",
+   *    SQL: "WHERE num_employees >= $1 AND num_employees <= $2 AND name ILIKE $3",
    *    parameters: [2, 20, "_Com%"]
    * }
    * 
   */
- //TODO: Change order on two if clauses
- //TODO:  Change references to this
+
   static _whereClauseBuilder(filters) {
-    let whereClauses = [];
-    let values = [];
+  let whereClauses = [];
+  let completedWhereClause = "";
+  let values = [];
 
-    if (filters.minEmployees !== undefined) {
-      values.push(filters.minEmployees);
-      whereClauses.push(`num_employees >= $${values.length}`);
-    }
-    if (filters.maxEmployees !== undefined) {
-      values.push(filters.maxEmployees);
-      whereClauses.push(`num_employees <= $${values.length}`);
-    }
-    if (filters.name !== undefined) {
-      values.push(`_${filters.name}%`); // added the "_" and "%" to enable SQL contains query
-      whereClauses.push(`name ILIKE $${values.length}`);
-    }
-    // console.log("values in builder", values)
-
-    return {
-      SQL: whereClauses.join(" AND "),
-      parameters: values
-    }
+  if (filters.minEmployees !== undefined) {
+    values.push(filters.minEmployees);
+    whereClauses.push(`num_employees >= $${values.length}`);
   }
+  if (filters.maxEmployees !== undefined) {
+    values.push(filters.maxEmployees);
+    whereClauses.push(`num_employees <= $${values.length}`);
+  }
+  if (filters.name !== undefined) {
+    values.push(`_${filters.name}%`); // added the "_" and "%" to enable SQL contains query
+    whereClauses.push(`name ILIKE $${values.length}`);
+  }
+  // console.log("values in builder", values)
+  if (whereClauses.length > 0) completedWhereClause = 'WHERE ' + `${whereClauses.join(" AND ")}`;
+  return {
+    SQL: completedWhereClause,
+    parameters: values
+  }
+}
 
   /** Given a company handle, return data about company.
    *
@@ -145,22 +125,22 @@ class Company {
    **/
 
   static async get(handle) {
-    const companyRes = await db.query(
-      `SELECT handle,
+  const companyRes = await db.query(
+    `SELECT handle,
                 name,
                 description,
                 num_employees AS "numEmployees",
                 logo_url AS "logoUrl"
            FROM companies
            WHERE handle = $1`,
-      [handle]);
+    [handle]);
 
-    const company = companyRes.rows[0];
+  const company = companyRes.rows[0];
 
-    if (!company) throw new NotFoundError(`No company: ${handle}`);
+  if (!company) throw new NotFoundError(`No company: ${handle}`);
 
-    return company;
-  }
+  return company;
+}
 
   /** Update company data with `data`.
    *
@@ -175,26 +155,26 @@ class Company {
    */
 
   static async update(handle, data) {
-    const { setCols, values } = sqlForPartialUpdate(
-      data,
-      {
-        numEmployees: "num_employees",
-        logoUrl: "logo_url",
-      });
-    const handleVarIdx = "$" + (values.length + 1);
+  const { setCols, values } = sqlForPartialUpdate(
+    data,
+    {
+      numEmployees: "num_employees",
+      logoUrl: "logo_url",
+    });
+  const handleVarIdx = "$" + (values.length + 1);
 
-    const querySql = `
+  const querySql = `
       UPDATE companies
       SET ${setCols}
         WHERE handle = ${handleVarIdx}
         RETURNING handle, name, description, num_employees AS "numEmployees", logo_url AS "logoUrl"`;
-    const result = await db.query(querySql, [...values, handle]);
-    const company = result.rows[0];
+  const result = await db.query(querySql, [...values, handle]);
+  const company = result.rows[0];
 
-    if (!company) throw new NotFoundError(`No company: ${handle}`);
+  if (!company) throw new NotFoundError(`No company: ${handle}`);
 
-    return company;
-  }
+  return company;
+}
 
   /** Delete given company from database; returns undefined.
    *
@@ -202,16 +182,16 @@ class Company {
    **/
 
   static async remove(handle) {
-    const result = await db.query(
-      `DELETE
+  const result = await db.query(
+    `DELETE
            FROM companies
            WHERE handle = $1
            RETURNING handle`,
-      [handle]);
-    const company = result.rows[0];
+    [handle]);
+  const company = result.rows[0];
 
-    if (!company) throw new NotFoundError(`No company: ${handle}`);
-  }
+  if (!company) throw new NotFoundError(`No company: ${handle}`);
+}
 }
 
 

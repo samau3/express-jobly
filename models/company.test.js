@@ -77,26 +77,26 @@ describe("whereClauseBuilder", function () {
   };
 
   test("works: all filters", async function () {
-    let { SQL, parameters } = Company.whereClauseBuilder(filters);
+    let { SQL, parameters } = Company._whereClauseBuilder(filters);
 
-    expect(SQL).toEqual(`num_employees >= $1 AND num_employees <= $2 AND name ILIKE $3`);
+    expect(SQL).toEqual(`WHERE num_employees >= $1 AND num_employees <= $2 AND name ILIKE $3`);
     expect(parameters).toEqual([1, 2, "_2%"]);
   });
 
   test("works: no name", async function () {
-    let { SQL, parameters } = Company.whereClauseBuilder(filtersNoName);
-    expect(SQL).toEqual(`num_employees >= $1 AND num_employees <= $2`);
+    let { SQL, parameters } = Company._whereClauseBuilder(filtersNoName);
+    expect(SQL).toEqual(`WHERE num_employees >= $1 AND num_employees <= $2`);
     expect(parameters).toEqual([1, 2]);
   });
 
   test("works: no name and no min", async function () {
-    let { SQL, parameters } = Company.whereClauseBuilder(filtersNoMinAndNoName);
-    expect(SQL).toEqual(`num_employees <= $1`);
+    let { SQL, parameters } = Company._whereClauseBuilder(filtersNoMinAndNoName);
+    expect(SQL).toEqual(`WHERE num_employees <= $1`);
     expect(parameters).toEqual([2]);
   });
   test("works: no min", async function () {
-    let { SQL, parameters } = Company.whereClauseBuilder(filtersNoMin);
-    expect(SQL).toEqual(`num_employees <= $1 AND name ILIKE $2`);
+    let { SQL, parameters } = Company._whereClauseBuilder(filtersNoMin);
+    expect(SQL).toEqual(`WHERE num_employees <= $1 AND name ILIKE $2`);
     expect(parameters).toEqual([2, "_2%"]);
   });
 
