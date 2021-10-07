@@ -57,10 +57,29 @@ function ensureAdmin(req, res, next) {
   }
 }
 
-
+/** Middleware to check if a user is an admin 
+ *  or if user matches username in parameter request
+ * 
+ *  If not, raises Unauthorized
+ */
+function ensureUserOrAdmin(req, res, next) {
+  try {
+    const user = res.locals.user;
+    if (user) {
+      const isCurrentUserOrAdmin = user.username === req.params.username || user.isAdmin === true
+      if (isCurrentUserOrAdmin) {
+        return next();
+      };
+    };
+    throw new UnauthorizedError();
+  } catch (err) {
+    return next(err);
+  }
+}
 
 module.exports = {
   authenticateJWT,
   ensureLoggedIn,
-  ensureAdmin
+  ensureAdmin,
+  ensureUserOrAdmin
 };
