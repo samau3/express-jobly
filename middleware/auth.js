@@ -42,6 +42,11 @@ function ensureLoggedIn(req, res, next) {
   }
 }
 
+
+/** Middleware to check if a user is an admin
+ * 
+ *  If not, raises Unauthorized
+ */
 function ensureAdmin(req, res, next) {
   try {
     // console.log(res.locals.user)
