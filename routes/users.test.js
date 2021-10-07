@@ -71,7 +71,7 @@ describe("POST /users", function () {
       }, token: expect.any(String),
     });
   });
-
+  // TODO: consistency in order of non admin and then anon tests
   test("unauth for non admin", async function () {
     try {
       const resp = await request(app)
@@ -376,6 +376,7 @@ describe("DELETE /users/:username", function () {
       const resp = await request(app)
         .delete(`/users/u1`)
         .set("authorization", `Bearer ${u2Token}`);
+
     } catch (err) {
       expect(err.statusCode).toEqual(401);
       expect(err.message).toEqual("Unauthorized");

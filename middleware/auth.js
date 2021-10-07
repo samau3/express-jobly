@@ -66,7 +66,7 @@ function ensureUserOrAdmin(req, res, next) {
   try {
     const user = res.locals.user;
     if (user) {
-      const isCurrentUserOrAdmin = user.username === req.params.username || user.isAdmin === true
+      const isCurrentUserOrAdmin = user.username === req.params.username || user.isAdmin === true;
       if (isCurrentUserOrAdmin) {
         return next();
       };

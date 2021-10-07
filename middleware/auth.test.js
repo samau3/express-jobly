@@ -79,7 +79,7 @@ describe("ensureLoggedIn", function () {
 
 describe("ensureAdmin", function () {
   test("works", function () {
-    expect.assertions(1);
+    expect.assertions(1); // purpose is to check if next is called in middleware
     const req = {};
     const res = { locals: { user: { username: "testAdmin", isAdmin: true } } };
     const next = function (err) {
@@ -98,3 +98,6 @@ describe("ensureAdmin", function () {
     ensureAdmin(req, res, next);
   });
 });
+
+// TODO: add test ensureUserOrAdmin
+// Add testing if loggedIn or not for ensureAdmin

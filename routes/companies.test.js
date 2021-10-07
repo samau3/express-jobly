@@ -402,3 +402,7 @@ describe("DELETE /companies/:handle", function () {
     expect(resp.statusCode).toEqual(404);
   });
 });
+
+
+// TODO: increase coverage for:
+// companies.js            |      96 |    85.71 |     100 |   95.74 | 59,65
