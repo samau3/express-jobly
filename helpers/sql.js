@@ -2,7 +2,7 @@ const { BadRequestError } = require("../expressError");
 
 /**
  * Receives data from request body and SQL columns from
- * class methods, then updates database with the information provided
+ * class methods.
  * 
  * Data can include:
  *  User data: { firstName, lastName, password, email, isAdmin } or
@@ -13,6 +13,9 @@ const { BadRequestError } = require("../expressError");
  * Throws BadRequestError(400) if no data was submitted to update
  * 
  */
+
+// Include an example of the data input and output in the docstring itself.
+// sqlForPartialUpdate() ...
 function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   const keys = Object.keys(dataToUpdate);
   if (keys.length === 0) throw new BadRequestError("No data");

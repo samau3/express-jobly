@@ -11,8 +11,11 @@ const Company = require("../models/company");
 
 const companyNewSchema = require("../schemas/companyNew.json");
 const companyUpdateSchema = require("../schemas/companyUpdate.json");
+const User = require("../models/user");
 
 const router = new express.Router();
+
+
 
 
 /** POST / { company } =>  { company }
@@ -45,7 +48,9 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  *
  * Authorization required: none
  */
-
+// TODO:  Could convert minEmployees, maxEmployees to number here instead of in model.  Better separation of concerns.
+// TODO:  Optional:  Could use a validator to validate correct types are passed in and that no extra parameters.  Let them know that 
+//        those parameters aren't allowed.  User might think they are getting the information they expect if they put in something like location.
 router.get("/", async function (req, res, next) {
 
   const companies = await Company.findAll(req.query);

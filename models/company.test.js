@@ -105,6 +105,9 @@ describe("whereClauseBuilder", function () {
 
 /************************************** findAll */
 
+//TODO:  way to make sure test fails by using try catch with fail().  Should be used with all failure cases.
+//       It is a fail-safe in case your test code is faulty in some unexpected way.  Ask in group after lunch.
+
 describe("findAll", function () {
   test("works: no filter", async function () {
     let companies = await Company.findAll();
@@ -261,7 +264,6 @@ describe("findAll", function () {
       }
     ]);
   });
-
 
   // doesn't work if filtering for min greater than max
   test("doesn't work: min greater than max", async function () {

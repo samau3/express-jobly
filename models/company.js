@@ -58,6 +58,8 @@ class Company {
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * 
    * */
+  // Add the WHERE keyword to the whereClause builder.
+  // Loose the second query by adding string interpolation for where clause that may be an empty string.
 
   static async findAll(searchFilters = {}) {
 
@@ -108,21 +110,23 @@ class Company {
    * }
    * 
   */
-  static whereClauseBuilder(filters) {
+ //TODO: Change order on two if clauses
+ //TODO:  Change references to this
+  static _whereClauseBuilder(filters) {
     let whereClauses = [];
-    let counter = 0;
     let values = [];
+
     if (filters.minEmployees !== undefined) {
-      whereClauses.push(`num_employees >= $${++counter}`);
       values.push(filters.minEmployees);
+      whereClauses.push(`num_employees >= $${values.length}`);
     }
     if (filters.maxEmployees !== undefined) {
-      whereClauses.push(`num_employees <= $${++counter}`);
       values.push(filters.maxEmployees);
+      whereClauses.push(`num_employees <= $${values.length}`);
     }
     if (filters.name !== undefined) {
-      whereClauses.push(`name ILIKE $${++counter}`);
       values.push(`_${filters.name}%`); // added the "_" and "%" to enable SQL contains query
+      whereClauses.push(`name ILIKE $${values.length}`);
     }
     // console.log("values in builder", values)
 

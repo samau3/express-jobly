@@ -206,6 +206,8 @@ describe("GET /companies", function () {
   });
 
   // test passing extra parameters.
+  // Better to catch in jsonschema validator to only allow three.
+
   test("GET /companies?minEmployees&maxEmployees&name&somethingElse", async function () {
     const resp = await request(app).get("/companies?minEmployees=1&maxEmployees=2&name=2&somethingElse=abc");
     expect(resp.body).toEqual({
@@ -223,6 +225,7 @@ describe("GET /companies", function () {
   });
 
   // test passing single parameter + 1 extra parameter.
+  // same as above.
   test("GET /companies?minEmployees&somethingElse", async function () {
     const resp = await request(app).get("/companies?minEmployees=2&somethingElse=abc");
     expect(resp.body).toEqual({
