@@ -6,6 +6,7 @@ const {
   authenticateJWT,
   ensureLoggedIn,
   ensureAdmin,
+  ensureUserOrAdmin,
 } = require("./auth");
 
 
@@ -88,6 +89,16 @@ describe("ensureAdmin", function () {
     ensureAdmin(req, res, next);
   });
 
+  test("unauth if admin not logged in", function () {
+    expect.assertions(1);
+    const req = {};
+    const res = { locals: {} };
+    const next = function (err) {
+      expect(err instanceof UnauthorizedError).toBeTruthy();
+    };
+    ensureAdmin(req, res, next);
+  });
+
   test("unauth if not Admin", function () {
     expect.assertions(1);
     const req = {};
@@ -99,5 +110,46 @@ describe("ensureAdmin", function () {
   });
 });
 
-// TODO: add test ensureUserOrAdmin
-// Add testing if loggedIn or not for ensureAdmin
+describe("ensureUserOrAdmin", function () {
+  test("works for admin", function () {
+    expect.assertions(1); // purpose is to check if next is called in middleware
+    const req = { params: { username: "test" } };
+    const res = { locals: { user: { username: "testAdmin", isAdmin: true } } };
+    const next = function (err) {
+      expect(err).toBeFalsy();
+    };
+    ensureUserOrAdmin(req, res, next);
+  });
+
+  test("works for user", function () {
+    expect.assertions(1); // purpose is to check if next is called in middleware
+    const req = { params: { username: "test" } };
+    const res = { locals: { user: { username: "test", isAdmin: false } } };
+    const next = function (err) {
+      expect(err).toBeFalsy();
+    };
+    ensureUserOrAdmin(req, res, next);
+  });
+
+
+  test("unauth if not logged in", function () {
+    expect.assertions(1);
+    const req = { params: { username: "test" } };
+    const res = { locals: {} };
+    const next = function (err) {
+      expect(err instanceof UnauthorizedError).toBeTruthy();
+    };
+    ensureUserOrAdmin(req, res, next);
+  });
+
+  test("unauth for user not the same as username", function () {
+    expect.assertions(1); // purpose is to check if next is called in middleware
+    const req = { params: { username: "test2" } };
+    const res = { locals: { user: { username: "test", isAdmin: false } } };
+    const next = function (err) {
+      expect(err instanceof UnauthorizedError).toBeTruthy();
+
+    };
+    ensureUserOrAdmin(req, res, next);
+  });
+});

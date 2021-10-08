@@ -109,8 +109,6 @@ describe("GET /companies", function () {
     });
   });
 
-  // test getting minEmployees param.  passing minEmployees=2
-  // => only expect companies: c2 and c3.
   test("GET /companies?minEmployees", async function () {
     const resp = await request(app).get("/companies?minEmployees=2");
     expect(resp.body).toEqual({
@@ -132,6 +130,15 @@ describe("GET /companies", function () {
           }
         ]
     })
+  });
+
+  test("GET /companies?minEmployees with string value", async function () {
+    try {
+      const resp = await request(app).get("/companies?minEmployees=notgoingtopass");
+    } catch (err) {
+      expect(err.status).toEqual(400);
+      expect(err.message).toEqual("minEmployees must be a number.");
+    }
   });
 
   // test each maxEmployees.  Passing maxEmployees = 2 
@@ -157,6 +164,15 @@ describe("GET /companies", function () {
           }
         ]
     })
+  });
+
+  test("GET /companies?maxEmployees with string value", async function () {
+    try {
+      const resp = await request(app).get("/companies?maxEmployees=notgoingtopass2");
+    } catch (err) {
+      expect(err.status).toEqual(400);
+      expect(err.message).toEqual("maxEmployees must be a number.");
+    }
   });
 
   // test getting name str from param.  Passing name = "2"

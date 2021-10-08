@@ -49,9 +49,7 @@ router.post("/", ensureAdmin, async function (req, res, next) {
  *
  * Authorization required: none
  */
-// TODO:  Could convert minEmployees, maxEmployees to number here instead of in model.  Better separation of concerns.
-// TODO:  Optional:  Could use a validator to validate correct types are passed in and that no extra parameters.  Let them know that 
-//        those parameters aren't allowed.  User might think they are getting the information they expect if they put in something like location.
+
 router.get("/", async function (req, res, next) {
   let filters = req.query
   if (filters.minEmployees) {

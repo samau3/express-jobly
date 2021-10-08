@@ -71,7 +71,21 @@ describe("POST /users", function () {
       }, token: expect.any(String),
     });
   });
-  // TODO: consistency in order of non admin and then anon tests
+
+  test("unauth for anon", async function () {
+    const resp = await request(app)
+      .post("/users")
+      .send({
+        username: "u-new",
+        firstName: "First-new",
+        lastName: "Last-newL",
+        password: "password-new",
+        email: "new@email.com",
+        isAdmin: true,
+      });
+    expect(resp.statusCode).toEqual(401);
+  });
+
   test("unauth for non admin", async function () {
     try {
       const resp = await request(app)
@@ -88,20 +102,6 @@ describe("POST /users", function () {
       expect(err.statusCode).toEqual(401);
       expect(err.message).toEqual("Unauthorized");
     }
-  });
-
-  test("unauth for anon", async function () {
-    const resp = await request(app)
-      .post("/users")
-      .send({
-        username: "u-new",
-        firstName: "First-new",
-        lastName: "Last-newL",
-        password: "password-new",
-        email: "new@email.com",
-        isAdmin: true,
-      });
-    expect(resp.statusCode).toEqual(401);
   });
 
   test("bad request if missing data", async function () {
@@ -164,6 +164,12 @@ describe("GET /users", function () {
     });
   });
 
+  test("unauth for anon", async function () {
+    const resp = await request(app)
+      .get("/users");
+    expect(resp.statusCode).toEqual(401);
+  });
+
   test("unauth for non admins", async function () {
     try {
       const resp = await request(app)
@@ -173,12 +179,6 @@ describe("GET /users", function () {
       expect(err.statusCode).toEqual(401);
       expect(err.message).toEqual("Unauthorized");
     }
-  });
-
-  test("unauth for anon", async function () {
-    const resp = await request(app)
-      .get("/users");
-    expect(resp.statusCode).toEqual(401);
   });
 
   test("fails: test next() handler", async function () {
@@ -371,6 +371,12 @@ describe("DELETE /users/:username", function () {
     expect(resp.body).toEqual({ deleted: "u1" });
   });
 
+  test("unauth for anon", async function () {
+    const resp = await request(app)
+      .delete(`/users/u1`);
+    expect(resp.statusCode).toEqual(401);
+  });
+
   test("unauth for user with different username", async function () {
     try {
       const resp = await request(app)
@@ -381,12 +387,6 @@ describe("DELETE /users/:username", function () {
       expect(err.statusCode).toEqual(401);
       expect(err.message).toEqual("Unauthorized");
     }
-  });
-
-  test("unauth for anon", async function () {
-    const resp = await request(app)
-      .delete(`/users/u1`);
-    expect(resp.statusCode).toEqual(401);
   });
 
   test("not found if user missing", async function () {
